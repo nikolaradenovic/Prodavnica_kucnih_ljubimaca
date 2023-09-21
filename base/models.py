@@ -21,10 +21,10 @@ class Ad(models.Model): #oglas
     price = models.IntegerField(null=False)
     address = models.CharField(max_length=50, null=False)
     #image = models.ImageField(_(""), upload_to=None, height_field=None, width_field=None, max_length=None)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=0, null=False)
-    pet_type = models.ForeignKey(PetTypes, on_delete=models.SET_NULL,null=False)
-    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=False)
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=0, null=False) #fk od Users
+    pet_type = models.ForeignKey(PetTypes, on_delete=models.SET_NULL,null=True) #fk od PetTypes
+    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True) #fk on Cities
+    #null = true sam stavio jer zelim da pri brisanju grada/tipa upisem null. Ovo nije cest sue case
     def __str__(self):
         return self.ad_title
     
