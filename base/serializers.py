@@ -16,7 +16,7 @@ class AdSerializer(serializers.ModelSerializer):
                   'ad_title', 
                   'description', 
                   'created', 
-                  'age', 
+                  'pet_date_of_birth', 
                   'phone_number', 
                   'price', 
                   'address', 
