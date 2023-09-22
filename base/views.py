@@ -6,7 +6,6 @@ from .serializers import AdSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
 
 #basic Home Page view
-
 def home(request):
     content = "<html><h1>Pocetna</h1></html>"
     return HttpResponse(content)
@@ -35,8 +34,7 @@ def ads_by_pet_type(request, pet_type):
     ads_with_matching_pet_type = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #select related sluzi da selektuje objekte povezane na Ad preko user FK
     ad_list = []
     for ad in ads_with_matching_pet_type:
-        #user = ad.user.username
-        ad_list.append({ #srediti ovaj serializer!!!!!!!! da radi sa user i city
+        ad_list.append({ 
             'ad_title': ad.ad_title,
             'description': ad.description,
             'created': ad.created,
