@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from rest_framework import generics
+from rest_framework import generics, serializers
 from .models import Ad, User, PetTypes, Cities
 from .serializers import AdSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
@@ -29,23 +29,11 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
 
 #CRUD za filter oglasa po pet_type
-def ads_by_pet_type(request, pet_type):
-    pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type)
-    ads_with_matching_pet_type = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #select related sluzi da selektuje objekte povezane na Ad preko user FK
-    ad_list = []
-    for ad in ads_with_matching_pet_type:
-        ad_list.append({ 
-            'ad_title': ad.ad_title,
-            'description': ad.description,
-            'created': ad.created,
-            'last_updated': ad.last_updated,
-            
-            'pet_date_of_birth' : ad.pet_date_of_birth,
-            'phone_number':ad.phone_number,
-            'price': ad.price,
-            'address': ad.address,
-            'user': ad.user.username, 
-            'city': ad.city.city_name,
-         })
-
-    return JsonResponse({'ads': ad_list})
+def ads_by_pet_type(request, pet_type, city = None):
+    pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
+    ads_with_matching_pet_type = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type
+    ad_list = [] #^^^select related sluzi da selektuje objekte povezane na Ad preko user FK
+    if city:
+        city_type_obj = get_object_or_404(Cities, city_name=city) 
+        ads_with_matching_pet_type = ads_with_matching_pet_type.filter(city = city_type_obj)
+    return JsonResponse({'ads': AdSerializer.ads_by_pet_type_serializer(ads_with_matching_pet_type, ad_list)})

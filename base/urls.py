@@ -12,5 +12,7 @@ urlpatterns = [
     path('users/', UserListCreateView.as_view(), name='user-list-create'), 
     path('users/<int:pk>/', UserRetrieveUpdateDestroyView.as_view(), name='user-retrieve-update-destroy'),
     #url za filter oglasa po pet_type
-    path('pet_type_filter/<str:pet_type>', ads_by_pet_type, name='ads-by-pet-type')
+    path('pet_type_filter/<str:pet_type>', ads_by_pet_type, name='ads-by-pet-type'),
+
+    path('pet_type_filter/<str:pet_type>/<str:city>/', ads_by_pet_type, name='ads-by-pet-type-and-city'),
 ]
