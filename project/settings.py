@@ -27,11 +27,13 @@ SECRET_KEY = 'django-insecure-4wi9crii(y#a6dc98!2=relk(yi_%c_0gmx!(7t_9s&iiz1*0k
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', 'c934-37-122-179-16.ngrok-free.app' 
+    'localhost', 'e46e-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  
+SESSION_COOKIE_AGE = 1209600  
 
 # Application definition
 
@@ -43,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
+    #'user_api.apps.UserApiConfig',
     
     'base.apps.BaseConfig'
 ]
@@ -55,8 +59,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [

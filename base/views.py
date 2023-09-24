@@ -3,7 +3,10 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import generics, serializers
 from .models import Ad, User, PetTypes, Cities
 from .serializers import AdSerializer, UserSerializer
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.views import LoginView
+import json
 
 #basic Home Page view
 def home(request):
@@ -27,6 +30,15 @@ class UserListCreateView(generics.ListCreateAPIView):
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    
+#login view
+class UserLoginView(LoginView):
+    def form_invalid(self, form):
+        return JsonResponse({'error': 'Invalid username or password'}, status=401)
+
+    def form_valid(self, form):
+        self.request.session['user_logged_in'] = True 
+        return JsonResponse({'message': 'Login successful'})
 
 #CRUD za filter oglasa po pet_type
 def ads_by_pet_type(request, pet_type, city = None):
