@@ -27,13 +27,22 @@ SECRET_KEY = 'django-insecure-4wi9crii(y#a6dc98!2=relk(yi_%c_0gmx!(7t_9s&iiz1*0k
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', 'e46e-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+    'localhost', '4942-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'https://4942-37-122-179-16.ngrok-free.app',
+    #'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  
 SESSION_COOKIE_AGE = 1209600  
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Application definition
 
@@ -53,16 +62,19 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'project.urls'
+#CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://4942-37-122-179-16.ngrok-free.app",
+]
 
 TEMPLATES = [
     {

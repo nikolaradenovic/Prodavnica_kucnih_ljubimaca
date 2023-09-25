@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from rest_framework import generics, serializers
+from rest_framework.response import Response
+from rest_framework import generics, serializers, status
+from rest_framework.views import APIView
 from .models import Ad, User, PetTypes, Cities
-from .serializers import AdSerializer, UserSerializer
+from .serializers import AdSerializer, UserSerializer, UserLoginSerializer
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.views import LoginView
-import json
 
 #basic Home Page view
 def home(request):
@@ -26,19 +26,53 @@ class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
+        
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    
-#login view
-class UserLoginView(LoginView):
-    def form_invalid(self, form):
-        return JsonResponse({'error': 'Invalid username or password'}, status=401)
+    def get_current_user_ads(self):
+        current_user_ads = Ad.objects.filter(user=self.request.user) #vraca sve Ad-ove ovog Usera
+        return current_user_ads
+    #overrideovana get metoda koja vraca usera i sve njegove adove
+    def get(self, request, *args, **kwargs): 
+        user = self.get_object()
+        current_user_ads = self.get_current_user_ads()
 
-    def form_valid(self, form):
-        self.request.session['user_logged_in'] = True 
-        return JsonResponse({'message': 'Login successful'})
+        user_serializer = UserSerializer(user)
+        ads_serializer = AdSerializer(current_user_ads, many=True)
+        return Response({
+            'user': user_serializer.data,
+            'current_user_ads': ads_serializer.data,
+        }, status=status.HTTP_200_OK)
+        
+#login view
+class UserLoginView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = UserLoginSerializer(data=data)
+        if serializer.is_valid():
+            username = serializer.validated_data.get('username')
+            password = serializer.validated_data.get('password')
+            user = authenticate(username = username, password = password)# ako se korisnik autentifikuje sa ovim kredencijalima, taj User objekat ce biti stavljen u user promjenljivu. u suprotnom, user=None
+            if user: #true ako je autentifikovan                
+                login(request, user)
+                return Response({'message': 'Login Successful!', 
+                                 'user_id': user.id,
+                                 'username': username,
+                                 'email': user.email,
+                                 'first_name': user.first_name,
+                                 'last_name': user.last_name
+                                 }, status = status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Username or password incorrect'}
+                                ,status = status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#{
+#"username": "nikolaradenovic",
+#"password": "svjezeljeto"
+#}
 
 #CRUD za filter oglasa po pet_type
 def ads_by_pet_type(request, pet_type, city = None):

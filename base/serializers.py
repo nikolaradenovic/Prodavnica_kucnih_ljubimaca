@@ -3,14 +3,28 @@ from .models import Ad, PetTypes
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-
+#serializer za user crud
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name') 
+#serializer
+class UserLoginSerializer(serializers.Serializer):  
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    
+#serializer za user login response
+#class UserLoginResponseSerializer(serializers.Serializer):
+#    id = serializers.IntegerField()
+#    username = serializers.CharField()
+#    first_name = serializers.CharField()
+#    last_name = serializers.CharField()
+#    email = serializers.EmailField()
 
 class AdSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    city = serializers.StringRelatedField() 
+    pet_type = serializers.StringRelatedField()
     #image_url = serializers.SerializerMethodField() # ----------------
     class Meta:
         model = Ad
