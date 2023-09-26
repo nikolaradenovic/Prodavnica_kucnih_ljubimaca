@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import generics, serializers, status
 from rest_framework.views import APIView
 from .models import Ad, User, PetTypes, Cities
-from .serializers import AdSerializer, AdCreateSerializer, UserSerializer, UserLoginSerializer
+from .serializers import AdSerializer, AdCreateSerializer, UserSerializer, UserLoginSerializer, UserCreateSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
@@ -26,13 +26,13 @@ class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 #CRUD korisnika
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserCreateSerializer
         
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-#view za Adove nekog korisnika
+#view za Ad-ove nekog korisnika
 class UsersAds(APIView):
     def get(self, request, user_id):  
         user = get_object_or_404(User, id=user_id)
@@ -72,7 +72,9 @@ class UserLoginView(APIView):
 #"password": "svjezeljeto"
 #}
 
-#CRUD za filter oglasa po pet_type
+#filter oglasa po pet_type
+#ovaj view mozda predefinisati u get metodu APIview klase, a filtere po
+#gradu, rasi itd. pretvoriti u metode te klase?
 def ads_by_pet_type(request, pet_type, city = None):
     pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
     ads_with_matching_pet_type = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type

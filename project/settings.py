@@ -27,11 +27,11 @@ SECRET_KEY = 'django-insecure-4wi9crii(y#a6dc98!2=relk(yi_%c_0gmx!(7t_9s&iiz1*0k
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', '3297-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+    'localhost', 'f095-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://3297-37-122-179-16.ngrok-free.app',
+    'https://f095-37-122-179-16.ngrok-free.app',
     #'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
@@ -70,7 +70,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    #'user_api.apps.UserApiConfig',
     
     'base.apps.BaseConfig'
 ]
@@ -88,7 +87,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'project.urls'
 #CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    "https://3297-37-122-179-16.ngrok-free.app",
+    "https://f095-37-122-179-16.ngrok-free.app",
 ]
 
 TEMPLATES = [

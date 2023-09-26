@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Ad, PetTypes
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -8,12 +9,23 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name') 
+        
+#serializer za user create
+class UserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email','password', 'first_name', 'last_name') 
+    def create(self, validated_data):
+        # Hash the password before creating the user
+        validated_data['password'] = make_password(validated_data['password'])
+        user = super(UserCreateSerializer, self).create(validated_data)
+        return user
 
 class UserLoginSerializer(serializers.Serializer):  
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
-#serializer za kreiranje oglasa  
 
+#serializer za kreiranje oglasa  
 class AdCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad
@@ -21,7 +33,6 @@ class AdCreateSerializer(serializers.ModelSerializer):
 
 #serializer za fetchovanje oglasa
 class AdSerializer(serializers.ModelSerializer):
-    #user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     user = serializers.StringRelatedField()
     city = serializers.StringRelatedField() 
     pet_type = serializers.StringRelatedField()
