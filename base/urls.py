@@ -21,5 +21,6 @@ urlpatterns = [
     path('pet_type_filter/<str:pet_type>', ads_by_pet_type, name='ads-by-pet-type'),
     #url za filter po gradovima oglasa vec filtriranih po pet_type. mapiran na isti view
     path('pet_type_filter/<str:pet_type>/<str:city>/', ads_by_pet_type, name='ads-by-pet-type-and-city'),
+    #napraviti filter za pet breed kao prethodni za city !!!!!!!!!!!!!!!!!
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -8,11 +8,18 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name') 
-#serializer
+
 class UserLoginSerializer(serializers.Serializer):  
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
-    
+#serializer za kreiranje oglasa  
+
+class AdCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ad
+        fields = ('ad_title', 'description', 'pet_date_of_birth', 'phone_number', 'price', 'address', 'user', 'city', 'pet_type', 'image')
+
+#serializer za fetchovanje oglasa
 class AdSerializer(serializers.ModelSerializer):
     #user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     user = serializers.StringRelatedField()

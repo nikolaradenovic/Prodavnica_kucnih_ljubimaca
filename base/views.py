@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import generics, serializers, status
 from rest_framework.views import APIView
 from .models import Ad, User, PetTypes, Cities
-from .serializers import AdSerializer, UserSerializer, UserLoginSerializer
+from .serializers import AdSerializer, AdCreateSerializer, UserSerializer, UserLoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
@@ -17,7 +17,7 @@ def home(request):
 #CRUD oglasa
 class AdListCreateView(generics.ListCreateAPIView):
     queryset = Ad.objects.all()
-    serializer_class = AdSerializer
+    serializer_class = AdCreateSerializer
 
 class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ad.objects.all()
