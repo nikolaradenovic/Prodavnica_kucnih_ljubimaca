@@ -13,14 +13,6 @@ class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     
-#serializer za user login response
-#class UserLoginResponseSerializer(serializers.Serializer):
-#    id = serializers.IntegerField()
-#    username = serializers.CharField()
-#    first_name = serializers.CharField()
-#    last_name = serializers.CharField()
-#    email = serializers.EmailField()
-
 class AdSerializer(serializers.ModelSerializer):
     #user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     user = serializers.StringRelatedField()

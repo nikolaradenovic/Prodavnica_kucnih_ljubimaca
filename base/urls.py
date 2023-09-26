@@ -16,7 +16,7 @@ urlpatterns = [
     path('users/', UserListCreateView.as_view(), name='user-list-create'), 
     path('users/<int:pk>/', UserRetrieveUpdateDestroyView.as_view(), name='user-retrieve-update-destroy'),
     #oglasi trenutnog korisnika
-    path('users/<int:pk>/user_ads/', UsersAds.as_view(), name='current-user-ads'),
+    path('users/<int:user_id>/user_ads/', UsersAds.as_view(), name='current-user-ads'),
     #url za filter oglasa po pet_type
     path('pet_type_filter/<str:pet_type>', ads_by_pet_type, name='ads-by-pet-type'),
     #url za filter po gradovima oglasa vec filtriranih po pet_type. mapiran na isti view

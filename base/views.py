@@ -31,18 +31,16 @@ class UserListCreateView(generics.ListCreateAPIView):
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    #def get_current_user_ads(self,  pk = None):
-        #current_user_ads = Ad.objects.filter(user=self.request.user) #vraca sve Ad-ove ovog Usera
-        #return Response({'current_user_ads': AdSerializer(current_user_ads)})
-    #overrideovana get metoda koja vraca usera i sve njegove adove
 
+#view za Adove nekog korisnika
 class UsersAds(APIView):
-    def get(self, request, pk):  
-        current_user_ads = Ad.objects.filter(user=self.request.user) #vraca sve Ad-ove ovog Usera
-        serialized_data = AdSerializer(current_user_ads)
-        return Response({'current_user_ads': serialized_data})
-#login view
+    def get(self, request, user_id):  
+        user = get_object_or_404(User, id=user_id)
+        current_user_ads = Ad.objects.filter(user=user) #vraca sve Ad-ove ovog Usera
+        serialized_data = AdSerializer(current_user_ads, many=True)
+        return Response({'current_user_ads': serialized_data.data})
 
+#login view
 class UserLoginView(APIView):
     def post(self, request):
         data = request.data
