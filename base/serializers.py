@@ -22,7 +22,8 @@ class UserLoginSerializer(serializers.Serializer):
 #    email = serializers.EmailField()
 
 class AdSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    #user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = serializers.StringRelatedField()
     city = serializers.StringRelatedField() 
     pet_type = serializers.StringRelatedField()
     #image_url = serializers.SerializerMethodField() # ----------------

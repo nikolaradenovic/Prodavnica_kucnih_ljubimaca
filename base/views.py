@@ -5,6 +5,7 @@ from rest_framework import generics, serializers, status
 from rest_framework.views import APIView
 from .models import Ad, User, PetTypes, Cities
 from .serializers import AdSerializer, UserSerializer, UserLoginSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
 
@@ -30,22 +31,18 @@ class UserListCreateView(generics.ListCreateAPIView):
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    def get_current_user_ads(self):
-        current_user_ads = Ad.objects.filter(user=self.request.user) #vraca sve Ad-ove ovog Usera
-        return current_user_ads
+    #def get_current_user_ads(self,  pk = None):
+        #current_user_ads = Ad.objects.filter(user=self.request.user) #vraca sve Ad-ove ovog Usera
+        #return Response({'current_user_ads': AdSerializer(current_user_ads)})
     #overrideovana get metoda koja vraca usera i sve njegove adove
-    def get(self, request, *args, **kwargs): 
-        user = self.get_object()
-        current_user_ads = self.get_current_user_ads()
 
-        user_serializer = UserSerializer(user)
-        ads_serializer = AdSerializer(current_user_ads, many=True)
-        return Response({
-            'user': user_serializer.data,
-            'current_user_ads': ads_serializer.data,
-        }, status=status.HTTP_200_OK)
-        
+class UsersAds(APIView):
+    def get(self, request, pk):  
+        current_user_ads = Ad.objects.filter(user=self.request.user) #vraca sve Ad-ove ovog Usera
+        serialized_data = AdSerializer(current_user_ads)
+        return Response({'current_user_ads': serialized_data})
 #login view
+
 class UserLoginView(APIView):
     def post(self, request):
         data = request.data
@@ -54,14 +51,17 @@ class UserLoginView(APIView):
             username = serializer.validated_data.get('username')
             password = serializer.validated_data.get('password')
             user = authenticate(username = username, password = password)# ako se korisnik autentifikuje sa ovim kredencijalima, taj User objekat ce biti stavljen u user promjenljivu. u suprotnom, user=None
-            if user: #true ako je autentifikovan                
+            if user: #true ako je autentifikovan    
+                refresh = RefreshToken.for_user(user)            
                 login(request, user)
                 return Response({'message': 'Login Successful!', 
                                  'user_id': user.id,
                                  'username': username,
                                  'email': user.email,
                                  'first_name': user.first_name,
-                                 'last_name': user.last_name
+                                 'last_name': user.last_name,
+                                 'access_token': str(refresh.access_token),
+                                 'refresh_token': str(refresh)
                                  }, status = status.HTTP_200_OK)
             else:
                 return Response({'message': 'Username or password incorrect'}

@@ -27,11 +27,11 @@ SECRET_KEY = 'django-insecure-4wi9crii(y#a6dc98!2=relk(yi_%c_0gmx!(7t_9s&iiz1*0k
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', '4942-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+    'localhost', '3297-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://4942-37-122-179-16.ngrok-free.app',
+    'https://3297-37-122-179-16.ngrok-free.app',
     #'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
@@ -43,6 +43,20 @@ SESSION_COOKIE_AGE = 1209600
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+#podesavanja za jwt token
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+SIMPJE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=14),  
+    'SLIDING_TOKEN_REFRESH_MAX_LIFETIME': timedelta(days=28), 
+}
 
 # Application definition
 
@@ -54,6 +68,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     #'user_api.apps.UserApiConfig',
     
@@ -73,7 +88,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'project.urls'
 #CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    "https://4942-37-122-179-16.ngrok-free.app",
+    "https://3297-37-122-179-16.ngrok-free.app",
 ]
 
 TEMPLATES = [

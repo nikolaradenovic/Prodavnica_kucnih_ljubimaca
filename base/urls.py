@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import AdListCreateView, AdRetrieveUpdateDestroyView, UserListCreateView, UserRetrieveUpdateDestroyView, ads_by_pet_type, UserLoginView
+from .views import AdListCreateView, AdRetrieveUpdateDestroyView, UserListCreateView, UserRetrieveUpdateDestroyView, ads_by_pet_type, UserLoginView, UsersAds
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -15,6 +15,8 @@ urlpatterns = [
     #url korisnici
     path('users/', UserListCreateView.as_view(), name='user-list-create'), 
     path('users/<int:pk>/', UserRetrieveUpdateDestroyView.as_view(), name='user-retrieve-update-destroy'),
+    #oglasi trenutnog korisnika
+    path('users/<int:pk>/user_ads/', UsersAds.as_view(), name='current-user-ads'),
     #url za filter oglasa po pet_type
     path('pet_type_filter/<str:pet_type>', ads_by_pet_type, name='ads-by-pet-type'),
     #url za filter po gradovima oglasa vec filtriranih po pet_type. mapiran na isti view
