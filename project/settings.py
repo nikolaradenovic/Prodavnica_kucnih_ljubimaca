@@ -21,17 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4wi9crii(y#a6dc98!2=relk(yi_%c_0gmx!(7t_9s&iiz1*0k'
+SECRET_KEY = '12345'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', 'f095-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+    'localhost', '5976-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://f095-37-122-179-16.ngrok-free.app',
+    'https://5976-37-122-179-16.ngrok-free.app',
     #'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
@@ -51,8 +51,8 @@ REST_FRAMEWORK = {
 }
 
 from datetime import timedelta
-SIMPJE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),  
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  
     'SLIDING_TOKEN_LIFETIME': timedelta(days=14),  
     'SLIDING_TOKEN_REFRESH_MAX_LIFETIME': timedelta(days=28), 
@@ -87,7 +87,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'project.urls'
 #CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    "https://f095-37-122-179-16.ngrok-free.app",
+    "https://5976-37-122-179-16.ngrok-free.app",
 ]
 
 TEMPLATES = [
