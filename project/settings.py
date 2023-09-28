@@ -27,11 +27,11 @@ SECRET_KEY = '12345'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', '5976-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+    'localhost', 'd049-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://5976-37-122-179-16.ngrok-free.app',
+    'https://d049-37-122-179-16.ngrok-free.app',
     #'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
@@ -48,6 +48,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    #'DEFAULT_PERMISSION_CLASSES': [
+    #    'rest_framework.permissions.IsAuthenticated',
+    #]
 }
 
 from datetime import timedelta
@@ -75,20 +78,20 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 ROOT_URLCONF = 'project.urls'
-#CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = [
-    "https://5976-37-122-179-16.ngrok-free.app",
-]
+CORS_ALLOW_ALL_ORIGINS = True
+#CORS_ALLOWED_ORIGINS = [
+#    "https://d049-37-122-179-16.ngrok-free.app",
+#]
 
 TEMPLATES = [
     {

@@ -7,19 +7,32 @@ from .models import Ad, User, PetTypes, Cities
 from .serializers import AdSerializer, AdCreateSerializer, UserSerializer, UserLoginSerializer, UserCreateSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
 #basic Home Page view
 def home(request):
     content = "<html><h1>Pocetna</h1></html>"
     return HttpResponse(content)
 
-#CRUD oglasa
+#kreiranje oglasa
 class AdListCreateView(generics.ListCreateAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdCreateSerializer
+    #ovaj view ce da sluzi samo da kreira novi ad i zbog toga je get metod disabled
+    def get(self, request, *args, **kwargs):
+        return Response({})
 
+#izlistavanje svih oglasa
+class AdListView(generics.ListAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = AdSerializer
+
+#CRUD odredjenog oglasa
 class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    #permission_classes =([IsAuthenticated])
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
 
@@ -72,9 +85,16 @@ class UserLoginView(APIView):
 #"password": "svjezeljeto"
 #}
 
+class UserLogout(APIView):
+    def post(self, request):
+        logout(request)
+
+        return Response({'message': 'You have been logged out'})
+
 #filter oglasa po pet_type
 #ovaj view mozda predefinisati u get metodu APIview klase, a filtere po
 #gradu, rasi itd. pretvoriti u metode te klase?
+@permission_classes([IsAuthenticated])
 def ads_by_pet_type(request, pet_type, city = None):
     pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
     ads_with_matching_pet_type = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type

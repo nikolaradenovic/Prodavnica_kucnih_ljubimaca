@@ -29,7 +29,7 @@ class UserLoginSerializer(serializers.Serializer):
 class AdCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad
-        fields = ('ad_title', 'description', 'pet_date_of_birth', 'phone_number', 'price', 'address', 'user', 'city', 'pet_type', 'image')
+        fields = ('ad_title', 'description', 'pet_date_of_birth', 'phone_number', 'price', 'address', 'user', 'city', 'pet_type', 'image', 'created')
 
 #serializer za fetchovanje oglasa
 class AdSerializer(serializers.ModelSerializer):
