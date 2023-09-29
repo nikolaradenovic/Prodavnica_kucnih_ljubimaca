@@ -30,10 +30,12 @@ class AdListCreateView(generics.ListCreateAPIView):
 class AdListView(generics.ListAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
+    #permission_classes =[IsAuthenticated]
+    #authentication_classes = (JWTAuthentication)
 
 #CRUD odredjenog oglasa
 class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes =([IsAuthenticated])
+    permission_classes =[IsAuthenticated]
     authentication_classes = (JWTAuthentication,)
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
@@ -109,7 +111,7 @@ def ads_by_pet_type(request, pet_type, city = None, breed = None):
         ads_with_matching_pet_type = ads_with_matching_pet_type.filter(breed = breed_type_obj)
     return JsonResponse({'ads': AdSerializer.ads_by_pet_type_serializer(ads_with_matching_pet_type, ad_list)})
 
-#view za testiranje logina (bice obrisan)
+#view za testiranje logina (bice)
 @login_required
 def logintestview(request):
     content = "<html><h1>Youre logged in!</h1></html>"
