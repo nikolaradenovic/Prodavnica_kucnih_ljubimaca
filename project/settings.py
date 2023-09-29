@@ -27,11 +27,11 @@ SECRET_KEY = '12345'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', 'd049-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+    'localhost', '4550-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://d049-37-122-179-16.ngrok-free.app',
+    'https://4550-37-122-179-16.ngrok-free.app',
     #'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
@@ -42,6 +42,7 @@ SESSION_COOKIE_AGE = 1209600
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'djangorestframework-simplejwt',
 ]
 #podesavanja za jwt token
 REST_FRAMEWORK = {
@@ -89,9 +90,13 @@ MIDDLEWARE = [
 ]
 ROOT_URLCONF = 'project.urls'
 CORS_ALLOW_ALL_ORIGINS = True
-#CORS_ALLOWED_ORIGINS = [
-#    "https://d049-37-122-179-16.ngrok-free.app",
-#]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://4550-37-122-179-16.ngrok-free.app",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://4550-37-122-179-16.ngrok-free.app",
+]
 
 TEMPLATES = [
     {

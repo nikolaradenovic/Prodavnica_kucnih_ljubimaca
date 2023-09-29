@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.response import Response
 from rest_framework import generics, serializers, status
 from rest_framework.views import APIView
-from .models import Ad, User, PetTypes, Cities
+from .models import Ad, User, PetTypes, Cities, PetBreeds
 from .serializers import AdSerializer, AdCreateSerializer, UserSerializer, UserLoginSerializer, UserCreateSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404, redirect
@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
+from django.contrib.auth.decorators import login_required
 
 #basic Home Page view
 def home(request):
@@ -32,7 +33,7 @@ class AdListView(generics.ListAPIView):
 
 #CRUD odredjenog oglasa
 class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    #permission_classes =([IsAuthenticated])
+    permission_classes =([IsAuthenticated])
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
 
@@ -95,11 +96,20 @@ class UserLogout(APIView):
 #ovaj view mozda predefinisati u get metodu APIview klase, a filtere po
 #gradu, rasi itd. pretvoriti u metode te klase?
 @permission_classes([IsAuthenticated])
-def ads_by_pet_type(request, pet_type, city = None):
+def ads_by_pet_type(request, pet_type, city = None, breed = None):
     pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
     ads_with_matching_pet_type = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type
     ad_list = [] #^^^select related sluzi da selektuje objekte povezane na Ad preko user FK
-    if city:
+    if city and breed == None:
         city_type_obj = get_object_or_404(Cities, city_name=city) 
         ads_with_matching_pet_type = ads_with_matching_pet_type.filter(city = city_type_obj)
+    if breed and city == None:
+        breed_type_obj = get_object_or_404(PetBreeds, breed_name=breed) 
+        ads_with_matching_pet_type = ads_with_matching_pet_type.filter(breed = breed_type_obj)
     return JsonResponse({'ads': AdSerializer.ads_by_pet_type_serializer(ads_with_matching_pet_type, ad_list)})
+
+
+@login_required
+def logintestview(request):
+    content = "<html><h1>Youre logged in!</h1></html>"
+    return HttpResponse(content)
