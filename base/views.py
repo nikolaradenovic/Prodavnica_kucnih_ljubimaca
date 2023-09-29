@@ -9,9 +9,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
 from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view
 
 #basic Home Page view
 def home(request):
@@ -30,8 +31,7 @@ class AdListCreateView(generics.ListCreateAPIView):
 class AdListView(generics.ListAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
-    #permission_classes =[IsAuthenticated]
-    #authentication_classes = (JWTAuthentication)
+    permission_classes = [IsAuthenticated]
 
 #CRUD odredjenog oglasa
 class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -59,6 +59,7 @@ class UsersAds(APIView):
 
 #login view
 class UserLoginView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         data = request.data
         serializer = UserLoginSerializer(data=data)
@@ -111,8 +112,10 @@ def ads_by_pet_type(request, pet_type, city = None, breed = None):
         ads_with_matching_pet_type = ads_with_matching_pet_type.filter(breed = breed_type_obj)
     return JsonResponse({'ads': AdSerializer.ads_by_pet_type_serializer(ads_with_matching_pet_type, ad_list)})
 
-#view za testiranje logina (bice obrisan)
-@login_required
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def logintestview(request):
+    print(request.user)
     content = "<html><h1>Youre logged in!</h1></html>"
     return HttpResponse(content)

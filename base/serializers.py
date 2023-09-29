@@ -72,6 +72,6 @@ class AdSerializer(serializers.ModelSerializer):
                 'address': ad.address,
                 'user': ad.user.username, 
                 'city': ad.city.city_name,
-                #'image': ad.image.url or ''
+                'image': ad.image.url
             })
         return (ad_list)
