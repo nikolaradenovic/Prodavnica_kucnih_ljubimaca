@@ -34,6 +34,7 @@ class AdListView(generics.ListAPIView):
 #CRUD odredjenog oglasa
 class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes =([IsAuthenticated])
+    authentication_classes = (JWTAuthentication,)
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
 

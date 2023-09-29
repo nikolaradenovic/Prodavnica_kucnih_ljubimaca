@@ -43,6 +43,7 @@ SESSION_COOKIE_AGE = 1209600
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'djangorestframework-simplejwt',
+    'rest_framework.authentication.TokenAuthentication',
 ]
 #podesavanja za jwt token
 REST_FRAMEWORK = {
