@@ -27,7 +27,7 @@ SECRET_KEY = '12345'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', '4550-37-122-179-16.ngrok-free.app', 'pet.markodev.me' 
+    'localhost', '4550-37-122-179-16.ngrok-free.app', 'pet.markodev.me', '*'
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
@@ -47,6 +47,7 @@ AUTHENTICATION_BACKENDS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -82,7 +83,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
