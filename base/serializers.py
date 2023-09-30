@@ -58,8 +58,8 @@ class AdSerializer(serializers.ModelSerializer):
         else:
             return None
         # -----------------------------------------------
-    def ads_by_pet_type_serializer(ads_with_matching_pet_type, ad_list):
-        for ad in ads_with_matching_pet_type:
+    def ads_by_pet_type_serializer(filter_results, ad_list):
+        for ad in filter_results:
             ad_list.append({ 
                 'ad_title': ad.ad_title,
                 'description': ad.description,
@@ -72,6 +72,6 @@ class AdSerializer(serializers.ModelSerializer):
                 'address': ad.address,
                 'user': ad.user.username, 
                 'city': ad.city.city_name,
-                'image': ad.image.url
+                #'image': ad.image.url
             })
         return (ad_list)

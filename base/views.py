@@ -35,7 +35,7 @@ class AdListView(generics.ListAPIView):
 
 #CRUD odredjenog oglasa
 class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes =[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = (JWTAuthentication,)
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
@@ -84,34 +84,44 @@ class UserLoginView(APIView):
                                 ,status = status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#{
-#"username": "nikolaradenovic",
-#"password": "svjezeljeto"
-#}
-
+"""
+{
+"username": "nikolaradenovic",
+"password": "svjezeljeto"
+}
+"""
+#logout
 class UserLogout(APIView):
     def post(self, request):
         logout(request)
 
         return Response({'message': 'You have been logged out'})
 
-#filter oglasa po pet_type
-#ovaj view mozda predefinisati u get metodu APIview klase, a filtere po
-#gradu, rasi itd. pretvoriti u metode te klase?
-@permission_classes([IsAuthenticated])
-def ads_by_pet_type(request, pet_type, city = None, breed = None):
-    pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
-    ads_with_matching_pet_type = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type
-    ad_list = [] #^^^select related sluzi da selektuje objekte povezane na Ad preko user FK
-    if city and breed == None:
-        city_type_obj = get_object_or_404(Cities, city_name=city) 
-        ads_with_matching_pet_type = ads_with_matching_pet_type.filter(city = city_type_obj)
-    if breed and city == None:
-        breed_type_obj = get_object_or_404(PetBreeds, breed_name=breed) 
-        ads_with_matching_pet_type = ads_with_matching_pet_type.filter(breed = breed_type_obj)
-    return JsonResponse({'ads': AdSerializer.ads_by_pet_type_serializer(ads_with_matching_pet_type, ad_list)})
-
+class AdFilter(APIView):
+    #permission_classes = [AllowAny]
+    def post(self, request):
+        json_data = request.data
+        if 'pet_type' in json_data:
+            pet_type = json_data['pet_type']
+            pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
+            filter_results = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type
+            ad_list = [] #^^^select related sluzi da selektuje objekte povezane na Ad preko user FK
+            if 'city' in json_data: #filter po gradu
+                city = json_data['city']
+                city_type_object = get_object_or_404(Cities, city_name=city)
+                filter_results = filter_results.filter(city=city_type_object)
+            if 'breed' in json_data: #filter po rasi
+                breed = json_data['breed']
+                breed_type_object = get_object_or_404(PetBreeds, breed_name=breed)
+                filter_results = filter_results.filter(breed=breed_type_object)
+                
+            return JsonResponse({'filtered_ads': AdSerializer.ads_by_pet_type_serializer(filter_results, ad_list)})
+        
+        else:
+            return Response({'message': 'Username or password incorrect'}
+                            ,status = status.HTTP_400_BAD_REQUEST)
+     
+        
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
