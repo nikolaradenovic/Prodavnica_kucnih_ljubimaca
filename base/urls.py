@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import AdListCreateView, AdRetrieveUpdateDestroyView, UserListCreateView, UserRetrieveUpdateDestroyView, ads_by_pet_type, UserLoginView, UsersAds, UserLogout, AdListView, logintestview, AdFilter
+from .views import AdListCreateView, AdRetrieveUpdateDestroyView, UserListCreateView, UserRetrieveUpdateDestroyView, UserLoginView, UsersAds, UserLogout, AdListView, logintestview, AdFilter
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -25,14 +25,6 @@ urlpatterns = [
     #view za test logina
     path('logintest/', logintestview, name='logintest'),
     #filter oglasa
-    path('ad_filter/', AdFilter.as_view(), name='ad-filter'),
-    
-    #url za filter oglasa po pet_type
-    #path('pet_type_filter/<str:pet_type>', ads_by_pet_type, name='ads-by-pet-type'),
-    #url za filter po gradovima oglasa vec filtriranih po pet_type. mapiran na isti view
-    #path('pet_type_filter/<str:pet_type>/<str:city>/', ads_by_pet_type, name='ads-by-pet-type-and-city'),
-    #napraviti filter za pet breed kao prethodni za city !!!!!!!!!!!!!!!!!
-    
-    
+    path('ad_filter/', AdFilter.as_view(), name='ad-filter'),    
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
