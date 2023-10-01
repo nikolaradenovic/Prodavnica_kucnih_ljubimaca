@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Ad, PetTypes
+from .models import Ad, PetTypes, Cities, PetBreeds
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -26,16 +26,24 @@ class UserLoginSerializer(serializers.Serializer):
 
 #serializer za kreiranje oglasa  
 class AdCreateSerializer(serializers.ModelSerializer):
+    pet_breed_name = serializers.CharField(source='pet_type.pet_breed.pet_breed_name')
     class Meta:
         model = Ad
-        fields = ('ad_title', 'description', 'pet_date_of_birth', 'phone_number', 'price', 'address', 'user', 'city', 'pet_type', 'image', 'created')
+        fields = ('ad_title', 'description', 'pet_date_of_birth', 'phone_number', 'price', 'address', 'user', 'city', 'pet_type','pet_breed_name', 'image', 'created')
 
 #serializer za fetchovanje oglasa
 class AdSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
     city = serializers.StringRelatedField() 
+    pet_breed_name = serializers.SerializerMethodField()
+    def get_pet_breed_name(self, obj):
+        if obj.pet_type:
+            pet_breeds = PetBreeds.objects.filter(pet_type=obj.pet_type)
+            if pet_breeds.exists():
+                return pet_breeds[0].pet_breed_name
+        return None
+
     pet_type = serializers.StringRelatedField()
-    #image_url = serializers.SerializerMethodField() # ----------------
     class Meta:
         model = Ad
         fields = ('id', 
@@ -49,29 +57,23 @@ class AdSerializer(serializers.ModelSerializer):
                   'user',
                   'city',
                   'pet_type',
-                  'image')
-    # metoda za serializovanje filtera po pet_type    
-        # ----------------------------------------------
-    def get_image_url(self, ad):
-        if ad.image:
-            return self.context['request'].build_absolute_uri(ad.image.url)
-        else:
-            return None
-        # -----------------------------------------------
-    def ads_by_pet_type_serializer(filter_results, ad_list):
-        for ad in filter_results:
-            ad_list.append({ 
-                'ad_title': ad.ad_title,
-                'description': ad.description,
-                'created': ad.created,
-                'last_updated': ad.last_updated,
-                
-                'pet_date_of_birth' : ad.pet_date_of_birth,
-                'phone_number':ad.phone_number,
-                'price': ad.price,
-                'address': ad.address,
-                'user': ad.user.username, 
-                'city': ad.city.city_name,
-                #'image': ad.image.url
-            })
-        return (ad_list)
+                  'image',
+                  'pet_breed_name')
+
+#serializer za fetch svih gradova   
+class CitiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cities
+        fields = ('id', 'city_name')
+        
+#serializer za fetch svih pet_typeova          
+class PetTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PetTypes
+        fields = ('id', 'pet_type_name')
+
+#serializer za fetch svih pet_breedova u zavisnosti od pet_typea. prima pk pet_typea        
+class PetBreedsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PetBreeds
+        fields = ('id', 'pet_breed_name', 'pet_type')

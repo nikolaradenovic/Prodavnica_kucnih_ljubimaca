@@ -1,17 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User 
 
-class PetBreeds(models.Model):
-    pet_breed_name =  models.CharField(max_length=20, null=False)
-    
-    def __str__(self):
-        return self.pet_breed_name
-
 class PetTypes(models.Model):
     pet_type_name =  models.CharField(max_length=20, null=False)
-    pet_breed = models.ForeignKey(PetBreeds, on_delete=models.CASCADE, null=True)
     def __str__(self):
         return self.pet_type_name
+
+class PetBreeds(models.Model):
+    pet_breed_name = models.CharField(max_length=20, null=False)
+    pet_type = models.ForeignKey(PetTypes, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.pet_breed_name
 
 class Cities(models.Model):
     city_name = models.CharField(max_length=30, null=False)

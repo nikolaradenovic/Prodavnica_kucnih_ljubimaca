@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import generics, serializers, status, permissions
 from rest_framework.views import APIView
 from .models import Ad, User, PetTypes, Cities, PetBreeds
-from .serializers import AdSerializer, AdCreateSerializer, UserSerializer, UserLoginSerializer, UserCreateSerializer
+from .serializers import * 
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import authenticate, login, logout
@@ -19,8 +19,7 @@ def home(request):
 
 #kreiranje oglasa
 class AdListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = (JWTAuthentication,)
+    permission_classes = [AllowAny] #<---obrisati kasnije
     queryset = Ad.objects.all()
     serializer_class = AdCreateSerializer
     #ovaj view sluzi samo da kreira novi ad i zbog toga je get metod disabled
@@ -40,7 +39,11 @@ class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return [permissions.AllowAny()]
         else: #koje nisu safe (create, delete, update) dobijaju isauthenticated
             return [permissions.IsAuthenticated()]
-        
+    def get_object(self):
+        obj = get_object_or_404(Ad, pk=self.kwargs.get('pk')) #ad koji hocemo da izmijenimo
+        if self.request.user != obj.user: #ako user koji pravi zahtjev nije isti kao user koji je napravio ad blokiramo pristup
+            raise permissions.PermissionDenied("You do not have permission to perform this action.")
+        return obj
     queryset = Ad.objects.all()
     serializer_class = AdSerializer 
 
@@ -57,6 +60,12 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         else: 
             return [permissions.IsAuthenticated()]
         
+    def get_object(self):
+        obj = get_object_or_404(User, pk=self.kwargs.get('pk')) #user kojeg hocemo da izmijenimo
+        if self.request.user != obj: #ako user koji je podnio zahtjev nije isti kao onaj koji hoce da promijeni odbijamo pristup
+            raise permissions.PermissionDenied("You do not have permission to perform this action.")
+        return obj
+    
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -80,9 +89,9 @@ class UserLoginView(APIView):
             password = serializer.validated_data.get('password')
             user = authenticate(username = username, password = password)# ako se korisnik autentifikuje sa ovim kredencijalima, taj User objekat ce biti stavljen u user promjenljivu. u suprotnom, user=None
             if user: #true ako je autentifikovan    
-                refresh = RefreshToken.for_user(user)            
+                refresh = RefreshToken.for_user(user)
                 login(request, user)
-                return Response({'message': 'Login Successful!', 
+                return Response({'message': 'Login Successful!',
                                  'user_id': user.id,
                                  'username': username,
                                  'email': user.email,
@@ -114,26 +123,41 @@ class AdFilter(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
         json_data = request.data
-        if 'pet_type' in json_data:
+        filter_results = Ad.objects.all()
+        if 'pet_type' in json_data: #filter po tipu ljubimca
             pet_type = json_data['pet_type']
             pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
-            filter_results = Ad.objects.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type
-            ad_list = [] #^^^select related sluzi da selektuje objekte povezane na Ad preko user FK
-            if 'city' in json_data: #filter po gradu
-                city = json_data['city']
-                city_type_object = get_object_or_404(Cities, city_name=city)
-                filter_results = filter_results.filter(city=city_type_object)
-            if 'breed' in json_data: #filter po rasi
-                breed = json_data['breed']
-                breed_type_object = get_object_or_404(PetBreeds, breed_name=breed)
-                filter_results = filter_results.filter(breed=breed_type_object)
-                
-            return JsonResponse({'filtered_ads': AdSerializer.ads_by_pet_type_serializer(filter_results, ad_list)})
+            filter_results = filter_results.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type
+        if 'city' in json_data: #filter po gradu                       ^^^select related sluzi da selektuje objekte povezane na Ad preko user FK
+            city = json_data['city']
+            city_type_object = get_object_or_404(Cities, city_name=city)
+            filter_results = filter_results.filter(city=city_type_object)
+        if 'breed' in json_data: #filter po rasi
+            breed = json_data['breed']
+            breed_type_object = get_object_or_404(PetBreeds, breed_name=breed)
+            filter_results = filter_results.filter(breed=breed_type_object)                       
         
-        else:
-            return Response({'message': 'Bad request'}
-                            ,status = status.HTTP_400_BAD_REQUEST)
-     
+        return JsonResponse({'filtered_ads': AdSerializer(filter_results, many=True).data})
+
+#fetch svih gradova      
+class FetchCities(APIView):
+    def get(self, request):     
+        cities = Cities.objects.all()
+        return Response({'cities': CitiesSerializer(cities, many=True).data})   
+             
+#fetch sve pet_types
+class FetchPetTypes(APIView):
+    def get(self, request):     
+        pet_types = PetTypes.objects.all()
+        return Response({'pet_types': PetTypesSerializer(pet_types, many=True).data})
+
+#fetch sve pet_breeds za neki pet_type
+class FetchPetBreeds(APIView):
+    def get(self, request, pk):
+        pet_breeds = PetBreeds.objects.filter(pet_type=pk)
+        return Response({'pet_breeds': PetBreedsSerializer(pet_breeds, many=True).data})
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def logintestview(request):
