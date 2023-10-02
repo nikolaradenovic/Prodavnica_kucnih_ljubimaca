@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes, api_view
+from rest_framework.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 
 #basic Home Page view
@@ -19,7 +20,7 @@ def home(request):
 
 #kreiranje oglasa
 class AdListCreateView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny] #<---obrisati kasnije
+    #permission_classes = [AllowAny] #<---obrisati kasnije
     queryset = Ad.objects.all()
     serializer_class = AdCreateSerializer
     #ovaj view sluzi samo da kreira novi ad i zbog toga je get metod disabled
@@ -42,7 +43,7 @@ class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         obj = get_object_or_404(Ad, pk=self.kwargs.get('pk')) #ad koji hocemo da izmijenimo
         if self.request.user != obj.user: #ako user koji pravi zahtjev nije isti kao user koji je napravio ad blokiramo pristup
-            raise permissions.PermissionDenied("You do not have permission to perform this action.")
+            pass #raise permissions.PermissionDenied("You do not have permission to perform this action.")
         return obj
     queryset = Ad.objects.all()
     serializer_class = AdSerializer 
@@ -63,7 +64,7 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         obj = get_object_or_404(User, pk=self.kwargs.get('pk')) #user kojeg hocemo da izmijenimo
         if self.request.user != obj: #ako user koji je podnio zahtjev nije isti kao onaj koji hoce da promijeni odbijamo pristup
-            raise permissions.PermissionDenied("You do not have permission to perform this action.")
+            pass#return PermissionDenied("You do not have permission to perform this action.")
         return obj
     
     queryset = User.objects.all()

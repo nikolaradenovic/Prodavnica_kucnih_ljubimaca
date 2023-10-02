@@ -14,7 +14,7 @@ urlpatterns = [
     #izlistavanje svih oglasa
     path('ads/', AdListView.as_view(), name='get-ad-list'), 
     #kreiranje novog oglasa
-    path('ads/create_new_ad', AdListCreateView.as_view(), name='ad-list-create'), 
+    path('ads/create_new_ad/', AdListCreateView.as_view(), name='ad-list-create'), 
     #CRUD odredjenog oglasa
     path('ads/<int:pk>/', AdRetrieveUpdateDestroyView.as_view(), name='ad-retrieve-update-destroy'),
     #url svi korisnici
