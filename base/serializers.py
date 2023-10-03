@@ -66,7 +66,7 @@ class CitiesSerializer(serializers.ModelSerializer):
 class PetTypesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PetTypes
-        fields = ('id', 'pet_type_name')
+        fields = ('id', 'pet_type_name', 'pet_type_image')
 
 #serializer za fetch svih pet_breedova u zavisnosti od pet_typea. prima pk pet_typea        
 class PetBreedsSerializer(serializers.ModelSerializer):

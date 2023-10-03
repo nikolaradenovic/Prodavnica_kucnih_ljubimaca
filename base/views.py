@@ -1,17 +1,15 @@
 from django.http import HttpResponse, JsonResponse
-from rest_framework.response import Response
-from rest_framework import generics, serializers, status, permissions
-from rest_framework.views import APIView
-from .models import Ad, User, PetTypes, Cities, PetBreeds
-from .serializers import * 
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import get_object_or_404, redirect, render
+from rest_framework.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes, api_view
-from rest_framework.exceptions import PermissionDenied
-from django.contrib.auth.decorators import login_required
+from rest_framework.response import Response
+from rest_framework import generics, status, permissions
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import *
+from .serializers import * 
 
 #basic Home Page view
 def home(request):
@@ -42,8 +40,8 @@ class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return [permissions.IsAuthenticated()]
     def get_object(self):
         obj = get_object_or_404(Ad, pk=self.kwargs.get('pk')) #ad koji hocemo da izmijenimo
-        if self.request.user != obj.user: #ako user koji pravi zahtjev nije isti kao user koji je napravio ad blokiramo pristup
-            pass #raise permissions.PermissionDenied("You do not have permission to perform this action.")
+        if self.request.method in ['PATCH', 'PUT', 'DELETE'] and self.request.user != obj.user: #ako user koji pravi zahtjev nije isti kao user koji je napravio ad i ako metoda nije get blokiramo pristup 
+            raise PermissionDenied("You do not have permission to perform this action.")
         return obj
     queryset = Ad.objects.all()
     serializer_class = AdSerializer 
@@ -63,8 +61,8 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         
     def get_object(self):
         obj = get_object_or_404(User, pk=self.kwargs.get('pk')) #user kojeg hocemo da izmijenimo
-        if self.request.user != obj: #ako user koji je podnio zahtjev nije isti kao onaj koji hoce da promijeni odbijamo pristup
-            pass#return PermissionDenied("You do not have permission to perform this action.")
+        if self.request.method in ['PATCH', 'PUT', 'DELETE'] and self.request.user != obj: #ako user koji pravi zahtjev nije isti kao user koji je napravio profil i ako metoda nije get blokiramo pristup 
+            raise PermissionDenied("You do not have permission to perform this action.")
         return obj
     
     queryset = User.objects.all()
@@ -172,7 +170,11 @@ class AddPetType(APIView):
                 pet_type = PetTypes.objects.get(pet_type_name=pet_type_name)
                 return Response({'message': 'Pet type with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
             except PetTypes.DoesNotExist:
-                new_pet_type = PetTypes(pet_type_name=pet_type_name)
+                if 'pet_type_image' in json_data: #ako json sadrzi i sliku pamtimo i sliku i pet_type name
+                    pet_type_image = json_data['pet_type_image']
+                    new_pet_type = PetTypes(pet_type_name=pet_type_name, pet_type_image = pet_type_image)
+                else: #u suprotnom, pamtimo samo pet_type_name
+                    new_pet_type = PetTypes(pet_type_name=pet_type_name)
                 new_pet_type.save()
                 return Response({'message': 'Pet type added successfully.'}, status=status.HTTP_201_CREATED)
         return Response({'message': 'No valid data provided.'}, status=status.HTTP_400_BAD_REQUEST)

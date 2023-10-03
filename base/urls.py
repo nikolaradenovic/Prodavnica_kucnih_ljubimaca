@@ -33,12 +33,12 @@ urlpatterns = [
     path('pet_types/', FetchPetTypes.as_view(), name='fetch-all-pet_types'),
     #fetch svih pet_breedova za neki pet_type
     path('pet_breeds/<str:pet_type>/', FetchPetBreeds.as_view(), name='fetch-all-pet_breeds'),
-    #view za dodavanje novih tipova ljubimaca
-    path('AddPetType/', AddPetType.as_view(), name='add-pet_type'),
-    #view za dodavanje novih gradova
-    path('AddCity/', AddCity.as_view(), name='add-city'),
-    #view za dodavanje novih rasa
-    path('AddPetBreed/', AddPetBreed.as_view(), name='add-pet_breed'),
+    #view za dodavanje novih tipova ljubimaca. prima json sa pet_type i optional pet_type_image
+    path('add_pet_type/', AddPetType.as_view(), name='add-pet_type'),
+    #view za dodavanje novih gradova. prima json sa city_name
+    path('add_city/', AddCity.as_view(), name='add-city'),
+    #view za dodavanje novih rasa. prima json sa pet_breed i pet_type
+    path('add_pet_breed/', AddPetBreed.as_view(), name='add-pet_breed'),
   
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
