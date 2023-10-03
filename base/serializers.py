@@ -26,23 +26,19 @@ class UserLoginSerializer(serializers.Serializer):
 
 #serializer za kreiranje oglasa  
 class AdCreateSerializer(serializers.ModelSerializer):
-    pet_breed_name = serializers.CharField(source='pet_type.pet_breed.pet_breed_name')
     class Meta:
         model = Ad
-        fields = ('ad_title', 'description', 'pet_date_of_birth', 'phone_number', 'price', 'address', 'user', 'city', 'pet_type','pet_breed_name', 'image', 'created')
-
+        fields = ('ad_title', 'description', 'pet_date_of_birth', 'phone_number', 'price', 'address', 'user', 'city', 'pet_type','pet_breed', 'image', 'created')
+    def validate_pet_breed(self, value): #da li unijeti pet breed odgovara unijetom pet typeu
+        pet_type = self.initial_data.get('pet_type')
+        if pet_type and value:
+            if pet_type == self.pet_breed.pet_type:
+                raise serializers.ValidationError("Selected pet breed does not belong to the selected pet type.")
+        return value
 #serializer za fetchovanje oglasa
 class AdSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
     city = serializers.StringRelatedField() 
-    pet_breed_name = serializers.SerializerMethodField()
-    def get_pet_breed_name(self, obj):
-        if obj.pet_type:
-            pet_breeds = PetBreeds.objects.filter(pet_type=obj.pet_type)
-            if pet_breeds.exists():
-                return pet_breeds[0].pet_breed_name
-        return None
-
     pet_type = serializers.StringRelatedField()
     class Meta:
         model = Ad
@@ -58,7 +54,7 @@ class AdSerializer(serializers.ModelSerializer):
                   'city',
                   'pet_type',
                   'image',
-                  'pet_breed_name')
+                  'pet_breed')
 
 #serializer za fetch svih gradova   
 class CitiesSerializer(serializers.ModelSerializer):

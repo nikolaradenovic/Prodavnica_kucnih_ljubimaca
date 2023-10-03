@@ -32,7 +32,7 @@ urlpatterns = [
     #fetch svih pet_typova
     path('pet_types/', FetchPetTypes.as_view(), name='fetch-all-pet_types'),
     #fetch svih pet_breedova za neki pet_type
-    path('pet_breeds/<int:pk>/', FetchPetBreeds.as_view(), name='fetch-all-pet_breeds'),
+    path('pet_breeds/<str:pet_type>/', FetchPetBreeds.as_view(), name='fetch-all-pet_breeds'),
   
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

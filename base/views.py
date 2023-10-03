@@ -20,7 +20,7 @@ def home(request):
 
 #kreiranje oglasa
 class AdListCreateView(generics.ListCreateAPIView):
-    #permission_classes = [AllowAny] #<---obrisati kasnije
+    permission_classes = [AllowAny] #<---obrisati kasnije
     queryset = Ad.objects.all()
     serializer_class = AdCreateSerializer
     #ovaj view sluzi samo da kreira novi ad i zbog toga je get metod disabled
@@ -29,7 +29,7 @@ class AdListCreateView(generics.ListCreateAPIView):
 
 #izlistavanje svih oglasa
 class AdListView(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny] #obrisati ovu liniju !!!!!!!!!!!!
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
 
@@ -142,20 +142,23 @@ class AdFilter(APIView):
 
 #fetch svih gradova      
 class FetchCities(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):     
         cities = Cities.objects.all()
         return Response({'cities': CitiesSerializer(cities, many=True).data})   
              
 #fetch sve pet_types
 class FetchPetTypes(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):     
         pet_types = PetTypes.objects.all()
         return Response({'pet_types': PetTypesSerializer(pet_types, many=True).data})
 
 #fetch sve pet_breeds za neki pet_type
 class FetchPetBreeds(APIView):
-    def get(self, request, pk):
-        pet_breeds = PetBreeds.objects.filter(pet_type=pk)
+    permission_classes = [AllowAny]
+    def get(self, request, pet_type):
+        pet_breeds = PetBreeds.objects.filter(pet_type__pet_type_name=pet_type)
         return Response({'pet_breeds': PetBreedsSerializer(pet_breeds, many=True).data})
 
 

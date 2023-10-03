@@ -7,7 +7,7 @@ class PetTypes(models.Model):
         return self.pet_type_name
 
 class PetBreeds(models.Model):
-    pet_breed_name = models.CharField(max_length=20, null=False)
+    pet_breed_name = models.CharField(max_length=20, null=True)
     pet_type = models.ForeignKey(PetTypes, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -32,6 +32,7 @@ class Ad(models.Model): #oglas
     image = models.ImageField(upload_to='ad_images/', null=True) #mozda da se promijeni na null=false
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=0, null=False) #fk od Users
     pet_type = models.ForeignKey(PetTypes, on_delete=models.SET_NULL,null=True) #fk od PetTypes
+    pet_breed = models.ForeignKey(PetBreeds, on_delete=models.SET_NULL,null=True) #fk od PetBreeds
     city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True) #fk on Cities
     #null = true sam stavio jer zelim da pri brisanju grada/tipa upisem null. Ovo nije cest use case
     

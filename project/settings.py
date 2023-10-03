@@ -21,17 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '12345'
+SECRET_KEY = '512512'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', 'b17f-37-122-179-16.ngrok-free.app', 'pet.markodev.me', '*'
+    'localhost', 'b035-37-122-179-16.ngrok-free.app', 'pet.markodev.me', '*'
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://b17f-37-122-179-16.ngrok-free.app',
+    'https://b035-37-122-179-16.ngrok-free.app',
     #'pet.markodev.me' 
 ]
 MEDIA_URL = '/media/'
@@ -56,7 +56,7 @@ REST_FRAMEWORK = {
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),  
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  
     'SLIDING_TOKEN_LIFETIME': timedelta(days=14),  
     'SLIDING_TOKEN_REFRESH_MAX_LIFETIME': timedelta(days=28), 
@@ -92,10 +92,10 @@ ROOT_URLCONF = 'project.urls'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "https://b17f-37-122-179-16.ngrok-free.app",
+    "https://b035-37-122-179-16.ngrok-free.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://b17f-37-122-179-16.ngrok-free.app",
+    "https://b035-37-122-179-16.ngrok-free.app",
 ]
 
 TEMPLATES = [
