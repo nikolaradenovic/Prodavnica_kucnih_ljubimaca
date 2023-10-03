@@ -119,7 +119,7 @@ class UserLogout(APIView):
 
         return Response({'message': 'You have been logged out'})
 
-#filter za adove po pet_type(required), city i breed (optional). prima json 
+#filter za adove po pet_type, city i breed. prima json 
 class AdFilter(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
@@ -161,6 +161,62 @@ class FetchPetBreeds(APIView):
         pet_breeds = PetBreeds.objects.filter(pet_type__pet_type_name=pet_type)
         return Response({'pet_breeds': PetBreedsSerializer(pet_breeds, many=True).data})
 
+#adminov view za dodavanje novih pet_typova 
+class AddPetType(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        json_data = request.data
+        if 'pet_type' in json_data: 
+            pet_type_name = json_data['pet_type']
+            try:
+                pet_type = PetTypes.objects.get(pet_type_name=pet_type_name)
+                return Response({'message': 'Pet type with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            except PetTypes.DoesNotExist:
+                new_pet_type = PetTypes(pet_type_name=pet_type_name)
+                new_pet_type.save()
+                return Response({'message': 'Pet type added successfully.'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'No valid data provided.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+#adminov view za dodavanje novih citya 
+class AddCity(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        json_data = request.data
+        if 'city_name' in json_data:
+            city_name = json_data['city_name']
+            try:
+                city = Cities.objects.get(city_name=city_name)
+                return Response({'message': 'City with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            except Cities.DoesNotExist:
+                new_city = Cities(city_name=city_name)
+                new_city.save()
+                return Response({'message': 'City added successfully.'}, status=status.HTTP_201_CREATED)
+            
+        return Response({'message': 'No valid data provided.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+#adminov view za dodavanje novih pet_breedova. Prima json sa pet_breed(string) i pet_type(string)           
+class AddPetBreed(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):      
+        json_data = request.data 
+        if ('pet_breed' and 'pet_type') in json_data: #trebaju nam dva podatka is json
+            pet_breed_name = json_data['pet_breed'] #smijestamo ih u promjenljive
+            pet_type = json_data['pet_type']
+            try:
+                pet_type = PetTypes.objects.get(pet_type_name=pet_type) #gledamo da li u bazi postoji pettype sa imenom iz jsona
+            except PetTypes.DoesNotExist: #ako ne postoji, vracamo odgovor
+                return Response({'message': 'Pet breed with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            pet_type_id = pet_type.id #ako postoji, biljezimo njegov id
+            try:
+                pet_breed = PetBreeds.objects.get(pet_breed_name=pet_breed_name) #gledamo da li vec postoji pet breed sa imenom iz jsona
+                return Response({'message': 'Pet breed with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST) #ako vec ima jedan takav, vracamo bad request
+            except PetBreeds.DoesNotExist: #ako takav ne postoji kreiramo novi sa parametrima is jsona
+                new_pet_breed = PetBreeds(pet_breed_name=pet_breed_name, pet_type_id = pet_type_id) #pet type id vezuje pet breed sa pet typom!!!!!
+                new_pet_breed.save()
+                return Response({'message': 'Pet breed added successfully.'}, status=status.HTTP_201_CREATED)
+        
+        return Response({'message': 'No valid data provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
