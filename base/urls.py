@@ -1,12 +1,9 @@
 from django.urls import path
-from . import views
 from .views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    #home
-    path('', views.home, name='home'),
     #login
     path('login/', UserLoginView.as_view(), name='login'),
     #logout
@@ -23,8 +20,6 @@ urlpatterns = [
     path('users/<int:pk>/', UserRetrieveUpdateDestroyView.as_view(), name='user-retrieve-update-destroy'),
     #oglasi nekog korisnika
     path('users/<int:user_id>/user_ads/', UsersAds.as_view(), name='current-user-ads'),
-    #view za test logina
-    path('logintest/', logintestview, name='logintest'),
     #filter oglasa
     path('ad_filter/', AdFilter.as_view(), name='ad-filter'),  
     #fetch svih gradova
@@ -37,7 +32,7 @@ urlpatterns = [
     path('add_pet_type/', AddPetType.as_view(), name='add-pet_type'),
     #view za dodavanje novih gradova. prima json sa city_name
     path('add_city/', AddCity.as_view(), name='add-city'),
-    #view za dodavanje novih rasa. prima json sa pet_breed i pet_type
+    #view za dodavanje novih rasa. prima json sa pet_breed i pet_type za koji se ovaj pet breed vezuje
     path('add_pet_breed/', AddPetBreed.as_view(), name='add-pet_breed'),
   
 ]

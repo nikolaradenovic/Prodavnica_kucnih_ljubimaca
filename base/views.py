@@ -1,33 +1,38 @@
-from django.http import HttpResponse, JsonResponse
-from rest_framework.exceptions import PermissionDenied
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.decorators import permission_classes, api_view
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import generics, status, permissions
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import *
 from .serializers import * 
 
-#basic Home Page view
-def home(request):
-    content = "<html><h1>Pocetna</h1></html>"
-    return HttpResponse(content)
+# pet_type: tip ljubimca (pas, macka, ptica...)
+# city: grad
+# pet_breed: zavisi od pet_type; za dog je Golden Retriever, German Shepard itd, a za macku je Persian, Russian Blue itd
 
 #kreiranje oglasa
 class AdListCreateView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny] #<---obrisati kasnije
+    permission_classes = [AllowAny] #<---obrisati kasnije!!!!!!!
     queryset = Ad.objects.all()
     serializer_class = AdCreateSerializer
+    
+    def perform_create(self, serializer): #da li je trenutni korisnik autor oglasa
+        if self.request.user.username == serializer.validated_data['user']: #ako je inputovani user isti kao onaj koji pravi request
+            serializer.save() #cuvamo novi ad
+        else: #u suprotnom odbijamo pristup
+            raise PermissionDenied("You do not have permission to create an ad on behalf of another user.")
+        
     #ovaj view sluzi samo da kreira novi ad i zbog toga je get metod disabled
     def get(self, request, *args, **kwargs):
         return Response({})
 
 #izlistavanje svih oglasa
 class AdListView(generics.ListAPIView):
-    permission_classes = [AllowAny] #obrisati ovu liniju !!!!!!!!!!!!
+    permission_classes = [AllowAny] 
     queryset = Ad.objects.all()
     serializer_class = AdSerializer
 
@@ -45,6 +50,8 @@ class AdRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         return obj
     queryset = Ad.objects.all()
     serializer_class = AdSerializer 
+
+#bilo ko moze da gleda ad ili profil nekog usera, ali samo onaj koji ga je napravio moze da ga mijenja
 
 #CRUD korisnika
 class UserListCreateView(generics.ListCreateAPIView):
@@ -104,12 +111,7 @@ class UserLoginView(APIView):
                                 ,status = status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-"""
-{
-"username": "nikolaradenovic",
-"password": "svjezeljeto"
-}
-"""
+
 #logout
 class UserLogout(APIView):
     def post(self, request):
@@ -122,21 +124,23 @@ class AdFilter(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
         json_data = request.data
-        filter_results = Ad.objects.all()
+        filter_results = Ad.objects.all() #rezultati su u pocetku svi adovi, svaki filter sužаva queryset. ako nema filtera, vracaju se svi adovi
         if 'pet_type' in json_data: #filter po tipu ljubimca
-            pet_type = json_data['pet_type']
+            pet_type = json_data['pet_type'] #izvlacimo pet_type iz jsona
             pet_type_obj = get_object_or_404(PetTypes, pet_type_name=pet_type) #fetch sve PetTypes objekte koji se poklapaju sa pet_types ulaznim arg
             filter_results = filter_results.filter(pet_type=pet_type_obj).select_related('user') #fetch Ad objekte odredjenog pet_type
         if 'city' in json_data: #filter po gradu                       ^^^select related sluzi da selektuje objekte povezane na Ad preko user FK
             city = json_data['city']
             city_type_object = get_object_or_404(Cities, city_name=city)
             filter_results = filter_results.filter(city=city_type_object)
-        if 'breed' in json_data: #filter po rasi
-            breed = json_data['breed']
-            breed_type_object = get_object_or_404(PetBreeds, breed_name=breed)
-            filter_results = filter_results.filter(breed=breed_type_object)                       
+        if 'pet_breed' in json_data: #filter po rasi
+            breed = json_data['pet_breed']
+            breed_type_object = get_object_or_404(PetBreeds, pet_breed_name=breed)
+            filter_results = filter_results.filter(pet_breed=breed_type_object)                       
         
         return JsonResponse({'filtered_ads': AdSerializer(filter_results, many=True).data})
+
+#ova tri fetch viewa sluze da povuku tri kriterijuma za filtriranje da se sa njima na frontu popune drop down meniji za filtriranje
 
 #fetch svih gradova      
 class FetchCities(APIView):
@@ -159,9 +163,11 @@ class FetchPetBreeds(APIView):
         pet_breeds = PetBreeds.objects.filter(pet_type__pet_type_name=pet_type)
         return Response({'pet_breeds': PetBreedsSerializer(pet_breeds, many=True).data})
 
+#ova tri viewa sluze da superuser doda nove tipove/gradove/rase. za ovo nema frontend :((
+
 #adminov view za dodavanje novih pet_typova 
 class AddPetType(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAdminUser] 
     def post(self, request):
         json_data = request.data
         if 'pet_type' in json_data: 
@@ -170,7 +176,7 @@ class AddPetType(APIView):
                 pet_type = PetTypes.objects.get(pet_type_name=pet_type_name)
                 return Response({'message': 'Pet type with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
             except PetTypes.DoesNotExist:
-                if 'pet_type_image' in json_data: #ako json sadrzi i sliku pamtimo i sliku i pet_type name
+                if 'pet_type_image' in json_data: #ako json sadrzi i sliku pamtimo i sliku i pet_type name (zamisljeno ja da svaki pet type ima sliku)
                     pet_type_image = json_data['pet_type_image']
                     new_pet_type = PetTypes(pet_type_name=pet_type_name, pet_type_image = pet_type_image)
                 else: #u suprotnom, pamtimo samo pet_type_name
@@ -181,7 +187,7 @@ class AddPetType(APIView):
     
 #adminov view za dodavanje novih citya 
 class AddCity(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAdminUser] 
     def post(self, request):
         json_data = request.data
         if 'city_name' in json_data:
@@ -196,12 +202,12 @@ class AddCity(APIView):
             
         return Response({'message': 'No valid data provided.'}, status=status.HTTP_400_BAD_REQUEST)
     
-#adminov view za dodavanje novih pet_breedova. Prima json sa pet_breed(string) i pet_type(string)           
+#adminov view za dodavanje novih pet_breedova. Prima json sa pet_breed(string) i pet_type(string). Povezuje novi pet breed sa unijetim pet typom          
 class AddPetBreed(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAdminUser] 
     def post(self, request):      
         json_data = request.data 
-        if ('pet_breed' and 'pet_type') in json_data: #trebaju nam dva podatka is json
+        if ('pet_breed' and 'pet_type') in json_data: #trebaju nam dva podatka iz jsona
             pet_breed_name = json_data['pet_breed'] #smijestamo ih u promjenljive
             pet_type = json_data['pet_type']
             try:
@@ -219,10 +225,3 @@ class AddPetBreed(APIView):
                 return Response({'message': 'Pet breed added successfully.'}, status=status.HTTP_201_CREATED)
         
         return Response({'message': 'No valid data provided.'}, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def logintestview(request):
-    print(request.user)
-    content = "<html><h1>Youre logged in!</h1></html>"
-    return HttpResponse(content)
