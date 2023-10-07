@@ -16,7 +16,6 @@ from .serializers import *
 
 #kreiranje oglasa
 class AdListCreateView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny] #<---obrisati kasnije!!!!!!!
     queryset = Ad.objects.all()
     serializer_class = AdCreateSerializer
     
